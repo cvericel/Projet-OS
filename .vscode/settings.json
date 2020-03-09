@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "car.h": "c",
+        "stdio.h": "c",
+        "wait.h": "c",
+        "crossroad.h": "c"
+    }
+}

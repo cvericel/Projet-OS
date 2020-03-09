@@ -1,0 +1,2 @@
+
+int nFork(int nbProcs);
