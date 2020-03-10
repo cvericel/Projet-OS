@@ -19,11 +19,11 @@ void generateCarAutomatic()
             car.pid = pid;
             car.road = road;
             P(nbCarCreatedMutex);
-                nbCarCreated++;
+                shared->nbCarCreated++;
             V(nbCarCreatedMutex);
-            car.index = nbCarCreated;
+            car.index = shared->nbCarCreated;
             usleep(100000);
-            printf("VOITURE: arrivee de la voiture %d sur la voie %d\n", car.index, car.road);
+            printf("\tVOITURE: arrivee de la voiture %d sur la voie %d\n", car.index, car.road);
             carCrossroad(car); // Car gestion in crossroad
             exit(0);
     }
@@ -35,30 +35,34 @@ void carCrossroad(Car car)
     switch (car.road)
     {
         case PRIMARY_ROAD:
-            if (roadLigthsColor[PRIMARY_ROAD] == RED) {
-                printf("VOITURE: la voiture %d attend le feu\n", car.index);
+            if (shared->roadLigthsColor[PRIMARY_ROAD] == RED) {
+                printf("\tVOITURE: la voiture %d attend le feu\n", car.index);
                 P(nbCarWaitingRoadMutex[PRIMARY_ROAD]);
-                    nbCarWaitingRoad[PRIMARY_ROAD]++;
+                    shared->nbCarWaitingRoad[PRIMARY_ROAD]++;
                 V(nbCarWaitingRoadMutex[PRIMARY_ROAD]);
-                printf("Il y'a %d voitures en attente sur la voie %d", nbCarWaitingRoad[PRIMARY_ROAD], PRIMARY_ROAD);
+                printf("CARREFOUR: il y'a %d voitures en attente sur la voie %d\n", shared->nbCarWaitingRoad[PRIMARY_ROAD], PRIMARY_ROAD);
                 P(greenLight[PRIMARY_ROAD]);
+                printf("DEBUG: GREENLIGTH PRIMARY ROAD\n");
+
             }
             
             // GREEN LIGHT
-            printf("VOITURE: la voiture %d est passee\n", car.index);
+            printf("\tVOITURE: la voiture %d est passee\n", car.index);
             break;
         case SECONDARY_ROAD:
-            if(roadLigthsColor[SECONDARY_ROAD] == RED) {
-                printf("VOITURE: la voiture %d attend le feu\n", car.index);
+            if(shared->roadLigthsColor[SECONDARY_ROAD] == RED) {
+                printf("\tVOITURE: la voiture %d attend le feu\n", car.index);
                 P(nbCarWaitingRoadMutex[SECONDARY_ROAD]);
-                    nbCarWaitingRoad[SECONDARY_ROAD]++;
+                    shared->nbCarWaitingRoad[SECONDARY_ROAD]++;
                 V(nbCarWaitingRoadMutex[SECONDARY_ROAD]);
-                printf("Il y'a %d voitures en attente sur la voie %d", nbCarWaitingRoad[SECONDARY_ROAD], SECONDARY_ROAD);
+                printf("\tVOITURE: Il y'a %d voitures en attente sur la voie %d\n", shared->nbCarWaitingRoad[SECONDARY_ROAD], SECONDARY_ROAD);
                 P(greenLight[SECONDARY_ROAD]);
+                printf("DEBUG: GREENLIGTH SECONDARY ROAD\n");
+
             }
 
             // GREEN LIGHT
-            printf("VOITURE: la voiture %d est passee\n", car.index);
+            printf("\tVOITURE: la voiture %d est passee\n", car.index);
             break;
     }
 }

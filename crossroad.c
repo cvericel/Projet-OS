@@ -7,10 +7,7 @@
 -------------------------------SHARED VAR--------------------------------
 -------------------------------------------------------------------------
 */
-int nbCarCreated;
-int roadLigthsColor[NB_ROADLIGHTS];
-int nbCarWaitingRoad[NB_ROADLIGHTS];
-_Bool isFinish;
+Shared * shared;
 /*
 -------------------------------------------------------------------------
 --------------------------------SEMAPHORE--------------------------------
@@ -25,23 +22,24 @@ void changeRoadLightColor (int road, int timeToWait)
 {
     if(road == PRIMARY_ROAD) {
         P(roadLigths[PRIMARY_ROAD]);
-        roadLigthsColor[PRIMARY_ROAD] = GREEN;
+        shared->roadLigthsColor[PRIMARY_ROAD] = GREEN;
         printf("CARREFOUR: Le feu %d passe au vert\n", PRIMARY_ROAD);
-        printf("CARREFOUR: On libere %d voiture(s)\n", nbCarWaitingRoad[SECONDARY_ROAD]);
-        if (nbCarWaitingRoad[PRIMARY_ROAD] > 0) V(greenLight[PRIMARY_ROAD]);
-        usleep(timeToWait * 20000);//TODO change that
-        roadLigthsColor[PRIMARY_ROAD] = RED;
+        printf("CARREFOUR: On libere %d voiture(s)\n", shared->nbCarWaitingRoad[SECONDARY_ROAD]);
+        if (shared->nbCarWaitingRoad[PRIMARY_ROAD] > 0) V(greenLight[PRIMARY_ROAD]);
+        usleep(timeToWait * 2000);//TODO change that
+        shared->roadLigthsColor[PRIMARY_ROAD] = RED;
         printf("CARREFOUR: Le feu %d passe au rouge\n", PRIMARY_ROAD);
         V(roadLigths[SECONDARY_ROAD]);
+
     } else {
         P(roadLigths[SECONDARY_ROAD]);
-        roadLigthsColor[SECONDARY_ROAD] = GREEN;
-        printf("CARREFOUR: Le feu %d passe au vert\n", PRIMARY_ROAD);
-        printf("CARREFOUR: On libere %d voiture(s)\n", nbCarWaitingRoad[SECONDARY_ROAD]);
-        if(nbCarWaitingRoad[SECONDARY_ROAD] > 0) V(greenLight[SECONDARY_ROAD]);
-        usleep(timeToWait * 10000);
-        roadLigthsColor[SECONDARY_ROAD] = RED;
-        printf("CARREFOUR: Le feu %d passe au rouge\n", PRIMARY_ROAD);
+        shared->roadLigthsColor[SECONDARY_ROAD] = GREEN;
+        printf("CARREFOUR: Le feu %d passe au vert\n", SECONDARY_ROAD);
+        printf("CARREFOUR: On libere %d voiture(s)\n", shared->nbCarWaitingRoad[SECONDARY_ROAD]);
+        if(shared->nbCarWaitingRoad[SECONDARY_ROAD] > 0) V(greenLight[SECONDARY_ROAD]);
+        usleep(timeToWait * 1000);
+        shared->roadLigthsColor[SECONDARY_ROAD] = RED;
+        printf("CARREFOUR: Le feu %d passe au rouge\n", SECONDARY_ROAD);
         V(roadLigths[PRIMARY_ROAD]);
     }
 }
@@ -59,22 +57,16 @@ int main (int argc, char * argv[])
     // Init mutex
     nbCarCreatedMutex = semalloc(SEM_NB_CAR_CREATED_KEY, 1);
     for(i = 0; i < NB_ROADLIGHTS; i++) 
-        nbCarWaitingRoadMutex[i] = semalloc(SEM_NB_CAR_CREATED_KEY + i, 0);
+        nbCarWaitingRoadMutex[i] = semalloc(SEM_NB_CAR_CREATED_KEY + i, 1);
     
     /*------------------------------SHARED MEMORY------------------------------*/
-    nbCarCreated = shmalloc(SHARED_NB_CAR_CREATED, sizeof(int));
-    for (i = 0; i < NB_ROADLIGHTS; i++)
-    {
-        roadLigthsColor[NB_ROADLIGHTS] = shmalloc(SHARED_ROADLIGHT_COLOR + i, sizeof(int));
-        nbCarWaitingRoad[NB_ROADLIGHTS] = shmalloc(SHARED_NB_CAR_WAITING + i, sizeof(int));
-    }
-    isFinish = shmalloc(SHARED_IS_FINISH, sizeof(_Bool));
-
-    nbCarCreated = 0;
-    roadLigthsColor[PRIMARY_ROAD] = GREEN;
-    roadLigthsColor[SECONDARY_ROAD] = RED;
-    nbCarWaitingRoad[PRIMARY_ROAD], nbCarWaitingRoad[SECONDARY_ROAD] = 0;
-    isFinish = 0;
+    shared = (Shared*)shmalloc(SHARED_KEY, sizeof(Shared));
+    shared->nbCarCreated = 0;
+    shared->roadLigthsColor[PRIMARY_ROAD] = GREEN;
+    shared->roadLigthsColor[SECONDARY_ROAD] = RED;
+    shared->nbCarWaitingRoad[PRIMARY_ROAD] = 0;
+    shared->nbCarWaitingRoad[SECONDARY_ROAD] = 0;
+    shared->isFinish = 0;
 
     switch (nFork(2))
     {
@@ -87,15 +79,15 @@ int main (int argc, char * argv[])
             pere();
         case 1:
             V(roadLigths[PRIMARY_ROAD]);
-            while(!isFinish)
+            while(!shared->isFinish)
             {
-                changeRoadLightColor(PRIMARY_ROAD, 1000);//TODO time
+                changeRoadLightColor(PRIMARY_ROAD, 4000);//TODO time
             }
             break;
         case 2:
-            while(!isFinish)
+            while(!shared->isFinish)
             {
-                changeRoadLightColor(SECONDARY_ROAD, 1000);//TODO time
+                changeRoadLightColor(SECONDARY_ROAD, 4000);//TODO time
             }
         default: 
             break;
@@ -107,30 +99,32 @@ int main (int argc, char * argv[])
 int pere()
 {
     int i;
-    int nbCarMax = 20;
-
-    while (nbCarCreated < nbCarMax)
+    int nbCarMax = 10;
+    while (shared->nbCarCreated < nbCarMax)
     {
         generateCarAutomatic();
-        usleep(100000);
+        usleep(4000000);
     }
-    isFinish = 1;
+    shared->isFinish = 1;
 
     semfree(nbCarCreatedMutex);
-    semfree(nbCarWaitingRoadMutex);
+    semfree(nbCarWaitingRoadMutex[PRIMARY_ROAD]);
+    semfree(nbCarWaitingRoadMutex[SECONDARY_ROAD]);
+
     for(i = 0; i < NB_ROADLIGHTS; i++)
     {
         semfree(roadLigths[i]);
         semfree(greenLight[i]);
     }
 
-    shmfree(nbCarCreated);
+    shmfree(shared->nbCarCreated);
     for (i = 0; i < NB_ROADLIGHTS; i++)
     {
-        shmfree(roadLigthsColor[i]);
-        shmfree(nbCarWaitingRoad[i]);
+        shmfree(shared->roadLigthsColor[i]);
+        shmfree(shared->nbCarWaitingRoad[i]);
     }
-    shmfree(isFinish);
+    shmfree(shared->isFinish);
     waitpid(0, 0, 0);
     printf("Arret du programme\n");
+    return 0;
 }

@@ -19,20 +19,21 @@
 #define SEM_NB_CAR_WAITING_KEY 50
 #define SEM_NB_CAR_CREATED_KEY 55
 
-#define SHARED_NB_CAR_CREATED 60
-#define SHARED_ROADLIGHT_COLOR 70
-#define SHARED_NB_CAR_WAITING 80
-#define SHARED_IS_FINISH 90
+#define SHARED_KEY 100
+
 
 /*-----------------------------------------------------------------------
 -------------------------------SHARED VAR--------------------------------
 -------------------------------------------------------------------------*/
-extern int nbCarCreated;
-// Roadligths color
-extern int roadLigthsColor[NB_ROADLIGHTS];
-// Number of car waiting on the road
-extern int nbCarWaitingRoad[NB_ROADLIGHTS];
-extern _Bool isFinish;
+typedef struct{
+    int nbCarCreated;
+    // Roadligths color
+    int roadLigthsColor[NB_ROADLIGHTS];
+    // Number of car waiting on the road
+    int nbCarWaitingRoad[NB_ROADLIGHTS];
+    _Bool isFinish;
+} Shared;
+extern Shared * shared;
 
 /*-----------------------------------------------------------------------
 ---------------------------------SEMAPHORE-------------------------------

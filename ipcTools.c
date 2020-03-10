@@ -1,7 +1,9 @@
-#include "ipcTools.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
+#include <stdio.h> 
+#include "ipcTools.h" 
+#include <sys/shm.h> 
+#include <sys/sem.h> 
+#include <stdlib.h> 
+#include <string.h>
 
 static struct sembuf s = {0, 0, 0};
 
@@ -58,20 +60,27 @@ int semfree (int semid)
 }
 
 void * shmalloc(key_t key, int size) {
-    void * res;
-	int shmid = shmget(key, size, IPC_CREAT|IPC_EXCL|0600);
-	if (shmid == -1)
-		return 0;
-	res = shmat(shmid,0,0);
-	if (res == (void*)-1) {
-		shmfree(shmid);
-		return 0;
+	void * res;
+	int owner = 0; 
+	int shmid = shmget(key, 1, 0600);
+	if (shmid == -1) {
+		owner = 1;
+		shmid = shmget(key,size,IPC_CREAT|IPC_EXCL|0600); 
 	}
-	return res;
+	if (shmid == -1) return 0; 
+
+	res = shmat(shmid, 0, 0); 
+
+	if (res == (void*)-1) {
+		if (owner) shmctl(shmid, IPC_RMID, 0);
+		return 0; 
+	}
+
+	return res; 
 }
 
 int shmfree(key_t key)
 {
-	int shmid = shmget(key,  1, 0);
+	int shmid = shmget(key,  0, 0644);
 	return shmctl(shmid, IPC_RMID, 0);
 }
