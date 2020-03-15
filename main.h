@@ -8,6 +8,10 @@
 #include "readChar.h"
 
 #define MAX_CAR_DEFAULT 10
+#define AUTOMATIC_MOD 0
+#define INTERACTIF_MOD 1
+#define DEFAULT_TIME_TO_WAIT 2000
+#define DEFAULT_TIME_BETWEEN_CAR 1000
 
 #define SEM_ROAD_LIGTH_KEY 40
 #define SEM_GREEN_LIGHT_KEY 45
@@ -23,11 +27,12 @@
 -------------------------------------------------------------------------*/
 typedef struct{
     int nbCarCreated;
-    int carOnCrossroad;
     // Roadligths color
     int roadLigthsColor[NB_ROADLIGHTS];
     // Number of car waiting on the road
     int nbCarWaitingRoad[NB_ROADLIGHTS];
+    // Waiting time for road light in ms
+    int timeToWait;
     _Bool isFinish;
 } Shared;
 extern Shared * shared;
@@ -45,4 +50,4 @@ extern int nbCarWaitingRoadMutex[NB_ROADLIGHTS];
 extern int nbCarCreatedMutex;
 extern int carOnCrossroadMutex;
 
-int pere();
+void cleanup();

@@ -1,7 +1,7 @@
 #include "crossroad.h"
 #include "main.h"
 
-void changeRoadLightColor (int road, int timeToWait)
+void changeRoadLightColor (int road)
 {
     if(road == PRIMARY_ROAD) {
         P(roadLigths[PRIMARY_ROAD]);
@@ -9,7 +9,7 @@ void changeRoadLightColor (int road, int timeToWait)
         printf("CARREFOUR: Le feu %d passe au vert\n", PRIMARY_ROAD);
         printf("CARREFOUR: On libere %d voiture(s)\n", shared->nbCarWaitingRoad[SECONDARY_ROAD]);
         V(greenLight[PRIMARY_ROAD]);
-        usleep(timeToWait * 2000);//TODO change that
+        usleep(shared->timeToWait * 2000);//TODO change that
         P(greenLight[PRIMARY_ROAD]);
         shared->roadLigthsColor[PRIMARY_ROAD] = RED;
         printf("CARREFOUR: Le feu %d passe au rouge\n", PRIMARY_ROAD);
@@ -21,7 +21,7 @@ void changeRoadLightColor (int road, int timeToWait)
         printf("CARREFOUR: Le feu %d passe au vert\n", SECONDARY_ROAD);
         printf("CARREFOUR: On libere %d voiture(s)\n", shared->nbCarWaitingRoad[SECONDARY_ROAD]);
         V(greenLight[SECONDARY_ROAD]);
-        usleep(timeToWait * 1000);
+        usleep(shared->timeToWait * 1000);
         P(greenLight[SECONDARY_ROAD]);
         shared->roadLigthsColor[SECONDARY_ROAD] = RED;
         printf("CARREFOUR: Le feu %d passe au rouge\n", SECONDARY_ROAD);

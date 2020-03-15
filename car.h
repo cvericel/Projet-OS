@@ -20,4 +20,5 @@ void generateCarAutomatic();
 
 void carCrossroad(Car car);
 
-int pere();
+void genereCarInteractif(int road);
+

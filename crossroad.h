@@ -7,4 +7,4 @@
 
 #define NB_ROADLIGHTS 2
 
-void changeRoadLightColor(int road, int timeToWait);
+void changeRoadLightColor(int road);
