@@ -1,12 +1,35 @@
+/*
+ * \file main.c
+ * \author {cvericel, tdarcour}
+ * 
+ * \brief Programme main
+ */
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "crossroad.h"
-#include "nFork.h"
 #include "car.h"
 #include "ipcTools.h"
 #include "readChar.h"
 
+/*
+ * Constantes.
+ * \def MAX_CAR_DEFAULT
+ * \def AUTOMATIC_MOD
+ * \def INTERACTIF_MOD
+ * \def DEFAULT_TIME_TO_WAITE
+ * \def DEFAULT_TIME_BETWEEN_CAR
+ * 
+ * Clefs des semaphores.
+ * \def SEM_ROAD_LIGTH_KEY
+ * \def SEM_GREEN_LIGHT_KEY
+ * \def SEM_NB_CAR_WAITING_KEY
+ * \def SEM_NB_CAR_CREATED_KEY
+ * \def SEM_CAR_ON_CROSSROAD
+ * 
+ * Clef de la memoire partagee.
+ * \def SHARED_KEY
+ */
 #define MAX_CAR_DEFAULT 10
 #define AUTOMATIC_MOD 0
 #define INTERACTIF_MOD 1
@@ -22,18 +45,19 @@
 #define SHARED_KEY 100
 
 
-/*-----------------------------------------------------------------------
--------------------------------SHARED VAR--------------------------------
--------------------------------------------------------------------------*/
+/*
+ * ----------------------------------------------------------------------
+ * --------------------------MEMOIRE PARTAGEE----------------------------
+ * ----------------------------------------------------------------------
+ * \struct Shared
+ * \brief structure qui contient toute les variables partagees
+ */
 typedef struct{
-    int nbCarCreated;
-    // Roadligths color
-    int roadLigthsColor[NB_ROADLIGHTS];
-    // Number of car waiting on the road
-    int nbCarWaitingRoad[NB_ROADLIGHTS];
-    // Waiting time for road light in ms
-    int timeToWait;
-    _Bool isFinish;
+    int nbCarCreated; // Nombre de voiture cree
+    int roadLigthsColor[NB_ROADLIGHTS]; // Couleur du feu
+    int nbCarWaitingRoad[NB_ROADLIGHTS]; // Nombre de voitures en attentes sur une voie
+     int timeToWait; // Temp d'attente pour le feu de la voie secondaire
+    _Bool isFinish; // Boolean pour savoir quand toutes les voitures sont passees
 } Shared;
 extern Shared * shared;
 
@@ -50,4 +74,10 @@ extern int nbCarWaitingRoadMutex[NB_ROADLIGHTS];
 extern int nbCarCreatedMutex;
 extern int carOnCrossroadMutex;
 
+/*
+ * \fn void cleanup()
+ * \author cvericel
+ *  
+ * \brief Detruie les semaphores et la memoire partagee
+ */
 void cleanup();
