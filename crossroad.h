@@ -14,11 +14,11 @@
 
 
 /**
- * \fn void changeRoadLightColor (int road)
+ * \fn void manageRoadLightColor (int road)
  * \author cvericel
  * \brief Fonction qui gere le carrefour, elle s'occupe du changement des feux
  *        Necessite un processus par voie, sinon il ne fonctionnera pas
  * 
  * \param road, La route a gerer
  */
-void changeRoadLightColor(int road);
+void manageRoadLightColor(int road);

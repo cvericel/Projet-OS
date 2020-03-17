@@ -72,8 +72,6 @@ extern int greenLight[NB_ROADLIGHTS];
 -------------------------------------------------------------------------*/
 extern int nbCarWaitingRoadMutex[NB_ROADLIGHTS];
 extern int nbCarCreatedMutex;
-extern int carOnCrossroadMutex;
-
 /*
  * \fn void cleanup()
  * \author cvericel

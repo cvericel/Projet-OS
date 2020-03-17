@@ -18,7 +18,6 @@ int roadLigths[NB_ROADLIGHTS];
 int greenLight[NB_ROADLIGHTS];
 int nbCarWaitingRoadMutex[NB_ROADLIGHTS];
 int nbCarCreatedMutex;
-int carOnCrossroadMutex;
 
 /*
  * \fn int main (int argc, char * argv[])
@@ -71,7 +70,7 @@ int main (int argc, char * argv[])
             V(roadLigths[PRIMARY_ROAD]); // On libere le feu de la voie 0 pour qu'il passe au vert
             while(!shared->isFinish)
             {
-                changeRoadLightColor(PRIMARY_ROAD);
+                manageRoadLightColor(PRIMARY_ROAD);
             }
             exit(0);
         default: break;
@@ -86,7 +85,7 @@ int main (int argc, char * argv[])
         case 0:
             while(!shared->isFinish)
             {
-                changeRoadLightColor(SECONDARY_ROAD);
+                manageRoadLightColor(SECONDARY_ROAD);
             }
             exit(0);
         default: break;
@@ -123,7 +122,8 @@ int main (int argc, char * argv[])
         srandom(getpid());
         // On genere les voitures avec un temp aleatoire allant jusqu'a randomTime
         while(shared->nbCarCreated <= nbCarMax) {
-            generateCarAutomatic();
+            int road = rand() % 2;
+            genereCar(road);
             usleep(rand() % randomTime);  
         }
         // On attend que les voitures soit passés avant de mettre fin au programme
@@ -142,7 +142,7 @@ int main (int argc, char * argv[])
             {
                 case 97:
                     // Ajoute une nouvelle voiture sur la voie 0.
-                    genereCarInteractif(PRIMARY_ROAD);
+                    genereCar(PRIMARY_ROAD);
                     break;
                 case 113:
                     // On attend que les voitures soit passés avant de mettre fin au programme
@@ -151,7 +151,7 @@ int main (int argc, char * argv[])
                     break;
                 case 122:
                     // Ajoute une nouvelle voiture sur le voie 1.
-                    genereCarInteractif(SECONDARY_ROAD);
+                    genereCar(SECONDARY_ROAD);
                     break;
                 default:
                     printf("\t\tERREUR: 'a' pour ajouter une voiture sur la voie 0, 'z' sur la voie 1 et q pour quitter\n");

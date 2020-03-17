@@ -16,27 +16,20 @@ typedef struct{
 }Car;
 
 /*
- * \fn void genereCarInteractif(int road)
+ * \fn void genereCar(int road)
  * \param road, route sur laquelle la voiture se situe
  * \author {cvericel, tdarcour}
  * 
- * \brief Genere les voitures pour le mode interactif
+ * \brief Genere les voitures
  */
-void genereCarInteractif(int road);
- 
-/*
- * \fn void generateCarAutomatic()
- * \author {cvericel, tdarcour}
- * 
- * \brief Genere les voitures pour le mode automatique
- */
-void generateCarAutomatic();
+void genereCar(int road);
+
 
 /*
- * \fn void carCrossroad(Car car)
+ * \fn void manageCarOnCrossroad(Car car)
  * \param car, La voiture a gerer
  * \author {cvericel, tdarcour}
  * 
- * \brief Gere les voitures sur le carrefour
+ * \brief Gere une voiture sur le carrefour
  */
-void carCrossroad(Car car);
+void manageCarOnCrossroad(Car car);
