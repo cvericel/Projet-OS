@@ -121,7 +121,7 @@ int main (int argc, char * argv[])
 
         srandom(getpid());
         // On genere les voitures avec un temp aleatoire allant jusqu'a randomTime
-        while(shared->nbCarCreated <= nbCarMax) {
+        while(shared->nbCarCreated < nbCarMax) {
             int road = rand() % 2;
             genereCar(road);
             usleep(rand() % randomTime);  
@@ -143,15 +143,17 @@ int main (int argc, char * argv[])
                 case 97:
                     // Ajoute une nouvelle voiture sur la voie 0.
                     genereCar(PRIMARY_ROAD);
+                    if (shared->nbCarCreated > nbCarMax) shared->isFinish = 1;
                     break;
                 case 113:
                     // On attend que les voitures soit passés avant de mettre fin au programme
-                    while (shared->nbCarWaitingRoad[PRIMARY_ROAD] > 0 || shared->nbCarWaitingRoad[SECONDARY_ROAD] > 0) sleep(3);
+                    while (shared->nbCarWaitingRoad[PRIMARY_ROAD] > 0 || shared->nbCarWaitingRoad[SECONDARY_ROAD] > 0) sleep(1);
                     shared->isFinish = 1;
                     break;
                 case 122:
                     // Ajoute une nouvelle voiture sur le voie 1.
                     genereCar(SECONDARY_ROAD);
+                    if (shared->nbCarCreated > nbCarMax) shared->isFinish = 1;
                     break;
                 default:
                     printf("\t\tERREUR: 'a' pour ajouter une voiture sur la voie 0, 'z' sur la voie 1 et q pour quitter\n");
